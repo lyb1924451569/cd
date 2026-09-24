@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="成都行程">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#B3341F">
+<title>成都美食之旅 · 10/2—10/6</title>
+<style>
+/* SECTION: reset-and-tokens */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --brand:#B3341F; --brand-soft:#F7E7E2; --brand-deep:#8C2416;
+  --ink:#1F1A17; --ink-2:#5C524C; --ink-3:#8C817A;
+  --bg:#FAF7F3; --card:#FFFFFF; --line:#ECE5DE;
+  --warn-bg:#FFF6E5; --warn-line:#F0B429; --warn-ink:#7A5300;
+  --danger-bg:#FDECEA; --danger-line:#D93025; --danger-ink:#8C1C13;
+  --ok:#1E7A46; --ok-bg:#E8F5EC;
+  --eat:#C8641E; --sight:#1F6F8B; --transit:#5B4B8A;
+  --r:14px; --r-sm:10px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;
+  font-size:15px; line-height:1.65; letter-spacing:.1px;
+  padding-top:calc(var(--safe-t) + 0px);
+}
+@media (min-width:760px){ body{display:flex;justify-content:center;background:#EDE7E0} }
+#app{width:100%;max-width:560px;background:var(--bg);min-height:100vh;position:relative}
+@media (min-width:760px){ #app{box-shadow:0 0 40px rgba(0,0,0,.12)} }
+
+/* SECTION: sticky-header */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:linear-gradient(160deg,var(--brand) 0%,var(--brand-deep) 100%);
+  color:#fff; padding:calc(var(--safe-t) + 12px) 16px 0;
+  box-shadow:0 2px 12px rgba(140,36,22,.25);
+}
+.topbar h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.5px}
+.topbar .sub{margin:3px 0 10px;font-size:12.5px;opacity:.88;display:flex;flex-wrap:wrap;gap:4px 10px}
+.topbar .sub b{font-weight:600;opacity:1}
+
+/* SECTION: tabs */
+.tabs{
+  display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  scrollbar-width:none; padding:0 0 0; margin:0 -16px; padding-left:16px; padding-right:16px;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto; min-width:62px; min-height:44px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1px; padding:6px 12px; margin-bottom:8px;
+  border-radius:11px 11px 0 0; border:0; cursor:pointer;
+  background:rgba(255,255,255,.16); color:rgba(255,255,255,.82);
+  font-family:inherit; font-size:14px; font-weight:600;
+  transition:background .18s,color .18s;
+}
+.tab span{font-size:10.5px;font-weight:400;opacity:.85}
+.tab[aria-selected="true"]{background:var(--bg);color:var(--brand)}
+.tab[aria-selected="true"] span{opacity:.7}
+.tab:active{transform:scale(.97)}
+
+/* SECTION: layout */
+main{padding:14px 14px calc(var(--safe-b) + 88px)}
+.panel{display:none;animation:fade .22s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h2.sec{font-size:16px;margin:20px 2px 10px;display:flex;align-items:center;gap:7px;color:var(--ink)}
+h2.sec:first-child{margin-top:4px}
+h2.sec::before{content:"";width:4px;height:16px;background:var(--brand);border-radius:2px}
+
+.dayhead{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.dayhead .dt{font-size:13px;color:var(--brand);font-weight:700;letter-spacing:.4px}
+.dayhead h3{margin:2px 0 6px;font-size:18px}
+.dayhead .hl{font-size:13.5px;color:var(--ink-2);background:var(--brand-soft);border-radius:var(--r-sm);padding:8px 10px;line-height:1.55}
+
+/* SECTION: timeline */
+.tl{position:relative;padding-left:6px}
+.tl::before{content:"";position:absolute;left:52px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.ev{position:relative;display:flex;gap:12px;padding:0 0 10px}
+.ev .tm{
+  flex:0 0 46px; text-align:right; padding-top:11px;
+  font-size:12.5px; font-weight:700; color:var(--ink-3); font-variant-numeric:tabular-nums;
+}
+.ev .dot{position:absolute;left:46px;top:16px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--brand);z-index:2;margin-left:-5px}
+.ev .body{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;margin-left:8px}
+.ev.key .dot{border-color:var(--brand);background:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.ev.key .body{border-color:#E4C4BC;background:linear-gradient(180deg,#FFFDFC,#FDF5F2)}
+.ev.key .tm{color:var(--brand);font-size:14px}
+.ev .tt{font-size:15px;font-weight:650;margin:0 0 4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.ev .dt2{font-size:13.5px;color:var(--ink-2);margin:0;white-space:pre-line}
+.pill{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px;line-height:1.5;vertical-align:1px}
+.p-eat{background:#FDEEE0;color:var(--eat)} .p-sight{background:#E4F0F4;color:var(--sight)}
+.p-transit{background:#EDE9F6;color:var(--transit)} .p-todo{background:#E9F2EC;color:var(--ok)}
+.p-avoid{background:#F0EDEB;color:var(--ink-3)} .p-decision{background:#FFF1E6;color:#B4531A}
+.p-friend{background:var(--brand);color:#fff}
+.sub{margin-top:8px;border-radius:var(--r-sm);padding:8px 10px;font-size:13px;line-height:1.6}
+.sub.warn{background:var(--warn-bg);border-left:3px solid var(--warn-line);color:var(--warn-ink)}
+.sub.danger{background:var(--danger-bg);border-left:3px solid var(--danger-line);color:var(--danger-ink)}
+.sub.note{background:#F6F3EF;color:var(--ink-2)}
+.sub.transit{background:#F1F6F8;color:#33606F}
+.sub b{font-weight:700}
+
+/* SECTION: alerts */
+.alertwrap{padding:14px 14px 0}
+.alert-toggle{
+  width:100%; min-height:44px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:11px 13px; margin-bottom:10px; border:1px solid #F0D6D1; border-radius:var(--r);
+  background:linear-gradient(135deg,#FDECEA,#FFF6E5); color:var(--danger-ink);
+  font-family:inherit; font-size:14px; font-weight:700; cursor:pointer;
+}
+.alert-toggle .chev{font-size:13px;color:var(--ink-3)}
+.alert-toggle:active{transform:scale(.99)}
+.alert{border-radius:var(--r);padding:12px 13px;margin-bottom:10px;border:1px solid}
+.alert.danger{background:var(--danger-bg);border-color:#F2C4BF}
+.alert.warn{background:var(--warn-bg);border-color:#F3DCAC}
+.alert h4{margin:0 0 5px;font-size:14.5px;display:flex;gap:6px;align-items:center}
+.alert.danger h4{color:var(--danger-ink)} .alert.warn h4{color:var(--warn-ink)}
+.alert p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.6}
+.alert .act{margin-top:7px;font-size:13px;font-weight:650;color:var(--ink);background:rgba(255,255,255,.72);border-radius:8px;padding:6px 9px}
+
+/* SECTION: cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:10px}
+.card h4{margin:0 0 7px;font-size:15px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.card .row{font-size:13.5px;color:var(--ink-2);margin:5px 0;line-height:1.6}
+.card .row b{color:var(--ink);font-weight:650}
+.card .tag{font-size:11px;font-weight:700;color:#fff;background:var(--brand);border-radius:20px;padding:2px 9px}
+.card .tag.asg{background:var(--ok)}
+.kv{display:grid;grid-template-columns:64px 1fr;gap:3px 9px;font-size:13px;margin-top:7px}
+.kv dt{color:var(--ink-3)} .kv dd{margin:0;color:var(--ink-2)}
+
+/* SECTION: todo */
+.todo{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px;cursor:pointer;min-height:44px}
+.todo.done{background:#F4F8F5;border-color:#CFE3D5}
+.todo.done .tt2{text-decoration:line-through;color:var(--ink-3)}
+.cbx{flex:0 0 24px;height:24px;margin-top:1px;border-radius:7px;border:2px solid #CFC5BC;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:.15s}
+.todo.done .cbx{background:var(--ok);border-color:var(--ok)}
+.todo .tt2{font-size:15px;font-weight:650;margin:0 0 3px}
+.todo .dl{font-size:12.5px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:6px;padding:2px 7px;display:inline-block;margin-bottom:6px}
+
+/* SECTION: tables */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.tbl th{background:#F4EFE9;text-align:left;padding:8px 9px;font-weight:650;color:var(--ink-2);font-size:12.5px}
+.tbl td{padding:8px 9px;border-top:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+.tbl tr.best td{background:#F0F8F2;color:var(--ink)}
+.tbl .amt{font-weight:700;color:var(--brand);white-space:nowrap}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px;border-radius:var(--r)}
+
+/* SECTION: food-cat */
+.cat-h{font-size:15px;font-weight:700;margin:16px 2px 8px;color:var(--brand);display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.cat-h small{font-size:12px;font-weight:400;color:var(--ink-3)}
+.dish{background:var(--card);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 11px;margin-bottom:8px}
+.dish .n{font-size:14.5px;font-weight:650;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dish .a{font-size:12px;color:var(--ink-3);margin-top:2px}
+.dish .d{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.6}
+.badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:var(--brand);color:#fff}
+.badge.near{background:#E4F0F4;color:var(--sight)}
+.badge.fr{background:var(--ok)}
+
+/* SECTION: fab */
+.fab{
+  position:fixed; right:calc(50% - 280px + 14px); bottom:calc(var(--safe-b) + 16px);
+  z-index:50; min-height:44px; padding:11px 17px; border:0; border-radius:24px;
+  background:var(--brand); color:#fff; font-family:inherit; font-size:14px; font-weight:650;
+  box-shadow:0 4px 16px rgba(140,36,22,.34); cursor:pointer; display:flex; align-items:center; gap:6px;
+}
+@media (max-width:759px){ .fab{right:14px} }
+.fab:active{transform:scale(.96)}
+.foot{text-align:center;font-size:11.5px;color:var(--ink-3);padding:18px 10px 6px;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SECTION: topbar -->
+<header class="topbar">
+  <h1>成都美食之旅</h1>
+  <div class="sub">
+    <b>10/2 周五 → 10/6 周二</b>
+    <span>✈ 20:20 天府T2 落地</span>
+    <span>✈ 15:30 双流T2 离开</span>
+    <span>🏨 九眼桥 · 连住4晚</span>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="按日期切换行程"></nav>
+</header>
+
+<div id="alerts"></div>
+<main id="main"></main>
+
+<div class="foot" id="foot"></div>
+</div>
+
+<button class="fab" id="fab" type="button" data-primary-action>▲ 跳到今日重点</button>
+
+<script>
+/* SECTION: trip-data — 成都行程数据（2026-10-02 至 10-06）v2：10/3与10/4对调，蹄花移至10/2晚 */
+window.TRIP_DATA = {
+  meta: {
+    title: "成都美食之旅",
+    subtitle: "10月2日 — 10月6日",
+    hotel: "漫客电竞酒店（成都春熙路九眼桥店）",
+    hotelArea: "锦江区九眼桥片区 · 锦江沿岸",
+    nearestMetro: "牛王庙站（2/6号线）或顺江路站（6号线）",
+    flights: [
+      { label: "落地", date: "10/2 周五", time: "20:20", place: "天府机场 T2" },
+      { label: "离开", date: "10/6 周二", time: "15:30", place: "双流机场 T2" }
+    ],
+    stayNights: "连住4晚：10/2、10/3、10/4、10/5",
+    updatedNote: "天气与时刻数据更新于 2026-09-24，出发前3天请再查一次"
+  },
+
+  /* SECTION: alerts — 常驻警示，所有 tab 下都可见 */
+  alerts: [
+    {
+      level: "danger",
+      title: "票的日期已变：三星堆抢10/3，熊猫基地约10/4",
+      body: "10/3 与 10/4 已对调。三星堆国庆票 9月26日 20:00 一次性放出时，**务必选 10月3日**；熊猫基地改约 **10月4日** 上午票。抢错日期无法更改。",
+      action: "9月26日 19:55 打开三星堆小程序，下单日期选 10月3日"
+    },
+    {
+      level: "danger",
+      title: "熊猫基地国庆交通管制",
+      body: "10月1日—7日每日 7:00—16:00，熊猫基地南门（老园区）周边道路实施机动车预约通行管制（熊猫大道翠竹巷至蜀龙路段、翠竹巷、楠竹巷、绿竹巷、箭竹路等）。早上打车到南门会被拦。",
+      action: "10/4 一律打车直达「西门」，约30~40分钟"
+    },
+    {
+      level: "danger",
+      title: "10/6 返程硬底线：12:15 必须上车",
+      body: "15:30 双流 T2 起飞 → 13:30 到机场 → 12:15 从酒店出发。国庆返程日打车按1.5倍预留（60~75分钟）。11:15 必须回酒店取行李。",
+      action: "前一晚确认延迟退房至12:00，或早上先寄存行李"
+    },
+    {
+      level: "warn",
+      title: "三张票全部线上实名预约，现场不售票",
+      body: "熊猫基地、三星堆、都江堰均须提前在官方渠道实名预约，刷身份证原件入园。熊猫基地明确不支持二维码入园。",
+      action: "身份证原件全程随身带"
+    },
+    {
+      level: "warn",
+      title: "地铁国庆延时不含 10/2 和 10/5",
+      body: "成都地铁国庆延时运营只覆盖 9月30日、10月6日、10月7日（各线延长50—60分钟）。10月2日落地和10月5日出行按常规末班车算。",
+      action: "18号线往市区末班约 23:33；你 20:20 落地，余量充足"
+    }
+  ],
+
+  /* SECTION: todos — 抢票待办 */
+  todos: [
+    {
+      id: "sxd",
+      priority: "★★★",
+      title: "三星堆 · 10月3日 票",
+      deadline: "9月26日（周六）20:00 一次性放出",
+      detail: "国庆假期（10/1—10/7）全部日间票与延时票在 9月26日 20:00 一次性放出。建议 19:55 打开小程序守刷新。**⚠️ 日期已从10/4改为10月3日，下单时务必选对。**",
+      price: "普通票 72 / 学生票 36",
+      channel: "只认官方：微信公众号「三星堆博物馆」、官方小程序、官网 sxd.cn。未授权任何第三方售票，非官方渠道可能无法入馆。",
+      hours: "国庆延时开放 08:30—20:00；延时票 17:00 开始检票、18:00 停止检票"
+    },
+    {
+      id: "panda",
+      priority: "★★★",
+      title: "熊猫基地 · 10月4日 上午票",
+      deadline: "现在立刻（提前14天放票，已开放）",
+      detail: "**⚠️ 日期已从10/3改为10月4日。** 国庆每日限流8.5万人次（上午4.5万、下午4万），票很紧俏。约「上午票」，入园时间 7:30—12:00。10/4是周日，且在国庆假期内，6号别墅（花花）正常开放。",
+      price: "成人 55 / 学生 27 · 观光车 30（单日限乘5次，夏季售票7:30—17:30）",
+      channel: "官方微信公众号/小程序「成都大熊猫繁育研究基地」，及美团、携程、抖音、同程、「成都景区直通车」、「成都旅游观光巴士」",
+      hours: "旺季 7:30—18:00，17:00 停止入园"
+    },
+    {
+      id: "djy",
+      priority: "★★★",
+      title: "都江堰 · 10月5日 票",
+      deadline: "现在立刻（可提前15日预约，已开放）",
+      detail: "约「上午 08:00—10:00」时段。分时段：上午 08:00—10:00 / 10:00—12:00，下午 12:00—14:00 / 14:00—17:30。日期未变。",
+      price: "成人 80 / 半价 40 · 玉垒阁电梯另购 40 · 「都江·夜堰」夜游另购 80",
+      channel: "官方微信公众号「青城山都江堰」或「悦游都江堰」，及美团、携程等授权平台",
+      hours: "旺季检票 08:00—18:00，17:30 停止检票；日场票最晚须 20:00 前出园"
+    },
+    {
+      id: "train1",
+      priority: "★★",
+      title: "高铁票 · 10/3 成都东 → 广汉北",
+      deadline: "提前买",
+      detail: "去三星堆，**日期已改为10/3**。节假日票源紧张，未提前买可能无座或需长时间等下一班。以12306实时车次为准，车程约20~30分钟。",
+      price: "",
+      channel: "12306",
+      hours: ""
+    },
+    {
+      id: "train2",
+      priority: "★★",
+      title: "城际票 · 10/5 犀浦 ⇄ 离堆公园",
+      deadline: "提前买（往返）",
+      detail: "去都江堰。犀浦 → 离堆公园约23分钟，单程10元。班次：06:24 / 07:28 / 08:11 / 09:10 / 09:49 / 10:21 等，建议赶 07:28 或 08:11 班次。",
+      price: "单程 10 元",
+      channel: "12306",
+      hours: ""
+    }
+  ],
+
+  /* SECTION: weather */
+  weather: {
+    note: "各平台预报存在明显分歧。以下为墨迹天气（9/24更新）与2345天气王（9/23更新）交叉比对结果。",
+    rows: [
+      { date: "10/2 周五", moji: "小雨 18~24℃", w2345: "阴 18~23℃", verdict: "阴有分散小雨" },
+      { date: "10/3 周六", moji: "小雨 21~26℃", w2345: "中雨 21~26℃", verdict: "有雨概率高 → 三星堆室内，正好" },
+      { date: "10/4 周日", moji: "小雨 21~27℃", w2345: "中雨 21~27℃", verdict: "有雨概率高 → 熊猫基地小雨无碍" },
+      { date: "10/5 周一", moji: "阴 18~24℃", w2345: "阴 18~24℃", verdict: "相对最好的一天 → 都江堰", best: true },
+      { date: "10/6 周二", moji: "⚠️暂未获取", w2345: "阴 19~27℃", verdict: "分歧大：另有「阵雨转多云 18~23℃」「15~23℃ 西部有阵雨，偏北风4~6级」" }
+    ],
+    background: "今年「华西秋雨」较常年提前约一周，成都自9月20日起已进入长时间阴天间多云、雨水断断续续的格局。雨势整体不大，多为小雨、局部中雨，且降雨集中在夜间与早晚。气温舒适但空气湿度高、体感偏凉。",
+    packing: [
+      "洋葱式叠穿：薄T恤/薄长袖 → 薄卫衣或针织开衫 → 防风防水薄外套或冲锋衣",
+      "长裤，避免短裤",
+      "防滑运动鞋（都江堰石板路遇雨极滑，这条最关键）",
+      "折叠伞必备，建议再加一次性雨衣",
+      "都江堰、青城山等山区比市区低 2~3℃"
+    ],
+    impact: [
+      { spot: "三星堆（10/3）", ok: true, note: "室内为主，最适合雨天。10/3雨概率最高，把它放这天正合适" },
+      { spot: "熊猫基地（10/4）", ok: true, note: "小雨无碍。20℃左右正是熊猫最舒适、最活跃的温度（超26℃才会「收猫」进室内）" },
+      { spot: "都江堰（10/5）", ok: false, note: "全户外最怕雨。目前预报 10/5 是这几天里相对最好的一天（阴而非雨），排位有利" }
+    ]
+  },
+
+  /* SECTION: transit */
+  transit: [
+    { to: "春熙路 / 太古里", how: "2号线 牛王庙 → 春熙路（2站）", time: "约15分钟", note: "也可打车10分钟" },
+    { to: "建设巷小吃街", how: "6号线 → 建设北路站", time: "约25分钟", note: "6号线直达，非常方便" },
+    { to: "人民公园", how: "2号线 → 人民公园站", time: "约20分钟", note: "2号线直达" },
+    { to: "文殊院 / 奎星楼街", how: "2号线 → 春熙路 → 换3号线/1号线", time: "约30分钟", note: "" },
+    { to: "琉璃场（叶凤烧烤/草屋烧烤）", how: "6号线 顺江路 → 三官堂 → 东光 → 琉璃场", time: "约8分钟", note: "3站直达，出站步行470~800米" },
+    { to: "胖娃蹄花（万年路）", how: "打车约15分钟/20元；或6号线牛王庙→玉双路换4号线2站到万年场", time: "打车15分钟 / 地铁约20分钟", note: "深夜建议直接打车" },
+    { to: "武侯祠 / 锦里", how: "打车", time: "约25分钟", note: "" },
+    { to: "熊猫基地（西门）", how: "打车 / 网约车直达西门", time: "约30~40分钟", note: "⚠️ 不要去南门，国庆交通管制" },
+    { to: "成都东站（去三星堆）", how: "2号线直达 → 成都东客站", time: "约20分钟", note: "不用换乘" },
+    { to: "犀浦站（去都江堰）", how: "2号线直达（终点站）", time: "约45分钟", note: "不用换乘" },
+    { to: "天府机场 T2（10/2 20:20落地）", how: "打车约50~60分钟；或18号线直达车33分钟到火车南站再换乘", time: "打车约21:50到酒店 / 地铁约22:40", note: "18号线末班 23:33，余量充足" },
+    { to: "双流机场 T2（10/6 15:30起飞）", how: "打车（强烈推荐）；地铁为牛王庙→春熙路换3号线→太平园换10号线", time: "打车30~40分钟 / 地铁50~60分钟", note: "返程日按1.5倍预留，12:15 上车" }
+  ],
+
+  /* SECTION: panda-transit */
+  pandaTransit: {
+    intro: "国庆期间早上打车直接杀到南门，大概率被拦在管制区外。三个应对方案：",
+    options: [
+      { name: "① 打车直达西门", tag: "推荐", how: "网约车定位「成都大熊猫繁育研究基地-西门」，约30~40分钟", verdict: "西门在管制范围外，人少体验好，时间最可控。入园后乘观光车即可到熊猫别墅站看花花" },
+      { name: "② 地铁3号线 + 摆渡车（西门）", tag: "省钱", how: "换乘到3号线 → 军区总医院站B口 → 步行约280米至玉垒路口 → 409路摆渡车（2元）→ 西大门", verdict: "最省钱，但要换乘+步行+等车，赶7:30开园较紧张。409路夏季营运 6:45—18:00" },
+      { name: "③ 地铁3号线 + 摆渡车（南门）", tag: "不建议", how: "3号线熊猫大道站A/D口 → 408路微巴 → 南大门", verdict: "南门离花花最近，但正处国庆机动车管制区，接驳车可能受影响" }
+    ],
+    route: "园内动线（西门进）：西门 → 观光车至熊猫溪谷站（山月馆、云月馆、秋月馆、揽月馆、明月馆、江月馆）→ 星星产房站（胜日馆、旭日馆、云日馆、映日馆）→ 一号别墅站 → 徒步一号别墅、二号别墅、月亮产房、太阳产房、幼年大熊猫别墅 → 南门出",
+    huahua: "花花在老区 6号别墅（亦称52号别墅）。基地规定「六号别墅试行每周一闭馆，国家法定节假日除外」—— 10月4日是周日，且在国庆假期内，双重保险，正常开放。",
+    otherClose: "大熊猫博物馆周一闭馆维护；熊猫塔周二闭塔维护。10月4日周日均不受影响。",
+    rain: "若遇雨天转往室内展厅：熊猫别墅区1、2、3、7号别墅，星星/月亮/太阳产房，熊猫会客厅、熊猫密林区、熊猫溪谷区均有室内展厅"
+  },
+
+  /* SECTION: days */
+  days: [
+    {
+      id: "d1002",
+      tab: "10/2",
+      weekday: "周五",
+      title: "落地 · 胖娃蹄花夜宵",
+      headline: "20:20 落地天府 T2 → 21:50 到酒店 → 22:15 吃蹄花",
+      items: [
+        { time: "20:20", title: "落地天府机场 T2", type: "transit", detail: "国庆客流大，出到达口 + 取行李按 30~40 分钟算。", note: "你的时间很宽裕：18号线末班 23:33，地铁完全赶得上。今晚要吃蹄花，打车更快更稳。" },
+        { time: "20:50", title: "打车 / 网约车去酒店【推荐】", type: "transit", detail: "T2 到达层网约车上车点 → 约50公里，夜间不堵，50~60分钟 → 约 21:50 到酒店。费用约 150~200 元。", highlight: true, note: "省钱备选：18号线直达车约33分钟到火车南站（普线约47分钟）→ 换1号线至天府广场 → 换2号线至牛王庙，约 22:40 到酒店，全程约10元。但那样吃蹄花就太晚了，今晚建议打车。" },
+        { time: "21:50", title: "到酒店 · 放行李、稍作整理", type: "todo", detail: "别坐下休息太久，10~15分钟就出发，蹄花店 20:00 才开门、营业到次日 04:30，这个点正是本地夜猫子的高峰。" },
+        { time: "22:10", title: "打车去胖娃滋补蹄花", type: "transit", detail: "成华区万年路8号院（万年路与积步街交叉口西南约100米），打车约15分钟/20元。深夜不建议坐地铁（要6号线换4号线，约20分钟且末班车有风险）。" },
+        { time: "22:25", title: "夜宵 · 胖娃滋补蹄花", type: "eat", friend: true, detail: "招牌：药膳炖蹄花（35元/只，可续汤）、尖椒炒猪头肉、凉拌耳片、卤鸭腿、炒饭炒面。人均 40~46。营业 20:00—次日04:30，时间非常充裕，不用赶。", highlight: true, note: "成都「鬼饮食」代表、苍蝇馆子50强，本地夜猫子圣地，烟火气足、老板热情。吐槽：环境简陋、夏天户外坐热——10月初夜里凉爽，坐外面反而舒服。", warn: "吃到 23:15—23:30 就收，明天虽是三星堆（不用像看熊猫那样6点起），但也别熬过午夜。" },
+        { time: "23:30", title: "打车回酒店 · 顺路看安顺廊桥", type: "sight", detail: "回九眼桥约15分钟。安顺廊桥、合江亭就在酒店旁，若还有精神可以下车走一小圈。", warn: "⚠️ 河岸蓝色灯带（「蓝眼泪」）约 23:00 关灯，今晚大概率赶不上。不用可惜——10/5 晚上是自由夜，那晚再专程去看，效果最好。" },
+        { time: "00:00", title: "睡前两件事", type: "todo", detail: "① 跟前台确认 10/6 能否延迟退房至 12:00，或问清行李寄存；② 确认已抢到 **10月3日** 的三星堆票、约好 **10月4日** 熊猫基地上午票。", highlight: true },
+        { time: "—", title: "❌ 今晚不要安排的", type: "avoid", detail: "建设巷夜市（6号线约25分钟，这个点已开始收摊，且和吃蹄花冲突）；九眼桥酒吧街（留到 10/5 自由夜）。今晚就是「落地 → 蹄花 → 睡觉」三件事。" }
+      ]
+    },
+    {
+      id: "d1003",
+      tab: "10/3",
+      weekday: "周六",
+      title: "三星堆一日 + 火锅",
+      headline: "⭐ 已与10/4对调 · 08:00 出发，2号线直达成都东站，不用换乘",
+      items: [
+        { time: "07:00", title: "起床 · 楼下吃早餐", type: "eat", detail: "昨晚吃到近午夜，今天睡到7点正好7小时。**这是对调最大的好处**：原计划今天要 6:20 起床赶熊猫基地，现在可以睡饱。", highlight: true },
+        { time: "08:00", title: "出发：2号线 牛王庙 → 成都东客站", type: "transit", detail: "约20分钟，全程不用换乘。这是你住九眼桥的一个实际好处。", note: "想赶 08:30 开馆即入的话，需 06:50 出发。但10/3是周六+国庆，开馆即入也已经是人流高峰；**08:00 出发、约09:40 到馆**完全够用——博物馆开到 20:00，参观需 3~4 小时，时间很宽松。" },
+        { time: "08:30", title: "高铁 成都东 → 广汉北", type: "transit", detail: "约20~30分钟，以12306实时车次为准（**票要提前买，日期是10/3**）。出站后打车或公交接驳至博物馆。也可选「成都景区直通车」或含往返接送的一日游产品（含门票+3小时讲解约168元起，旺季门票极紧张，抢不到票可协商全额退）。" },
+        { time: "09:40", title: "三星堆博物馆 · 入馆", type: "sight", detail: "国庆延时开放 08:30—20:00。参观顺序：新馆（陈列馆）1F 世纪逐梦厅（约30分钟）→ 1F 巍然王都厅（约60分钟）→ 2F 天地人神厅（约90分钟）→ 老馆（青铜馆）→ 文物修复中心 → 祭祀坑遗址区。全程需 3~4 小时，深度游览 5~6 小时。", highlight: true, note: "核心展品：青铜神树、青铜大立人像、黄金面具、青铜纵目面具。**强烈建议请官方讲解或租讲解器**——三星堆不听讲解，基本等于看个热闹。地址：四川省德阳市广汉市西安路133号（鸭子河畔），南距成都38公里。" },
+        { time: "13:00", title: "午餐 · 馆区内或返广汉市区", type: "eat", detail: "广汉/德阳当地特色：连山回锅肉（连山镇，份量惊人）、广汉缠丝兔。具体店铺以现场口碑为准。" },
+        { time: "14:00", title: "继续深度游 / 或提前返程", type: "sight", detail: "若只抢到延时票（17:00开始检票、18:00停止检票、20:00闭馆），则白天在市区慢吃、傍晚去广汉。", warn: "延时票要注意：21:00 后广汉返蓉的高铁班次可能已收班，需打车约38公里回成都。**优先抢日间票。**" },
+        { time: "17:00", title: "晚餐 · 火锅（第一顿重头戏）", type: "eat", detail: "按「17:00 前到店不排队」原则选一家，务必错峰。六家备选见「美食」tab。", note: "离酒店最近的是大龙燚（太古里2层），打车10分钟。想要最地道就选蜀九香（倪家桥路10号）或星鸿社（玉林南路15号，17:00前不排队）。" },
+        { time: "21:30", title: "回九眼桥 · 早点休息", type: "todo", detail: "今晚不要安排夜宵。**明天 6:20 就要起床赶熊猫基地 7:30 开园**，这是全程唯一不能妥协的早起。", highlight: true, warn: "睡前把 10/4 的网约车预约好，定位「成都大熊猫繁育研究基地-西门」。" },
+        { time: "备选", title: "若今晚不累，想加一顿串串", type: "decision", detail: "龙户人家串串香（春熙路店）离酒店最近，2号线2站；或屋头串串（抚琴西南路12号）配抚琴夜市。但请控制在 22:00 前回酒店。" }
+      ]
+    },
+    {
+      id: "d1004",
+      tab: "10/4",
+      weekday: "周日",
+      title: "熊猫基地 + 老成都味道",
+      headline: "⭐ 已与10/3对调 · 6:50 出发 → 7:30 开园即入（全程唯一不可妥协的时间点）",
+      items: [
+        { time: "6:20", title: "起床", type: "todo", detail: "昨晚 21:30 就回酒店了，睡眠充足。**对调的意义就在这里**：把唯一需要猛早起的一天，放在已经休整过一天之后。" },
+        { time: "6:50", title: "打车直达熊猫基地「西门」", type: "transit", detail: "约30~40分钟。定位「成都大熊猫繁育研究基地-西门」。", warn: "⚠️ 绝对不要去南门！国庆 7:00—16:00 南门周边道路机动车预约通行管制，打车会被拦。" },
+        { time: "7:30", title: "开园即入 · 立刻买观光车票（30元）", type: "sight", detail: "园区3570亩，靠走撑不下来，观光车能把西门和老区串起来。优先冲：熊猫别墅站（6号别墅看花花）→ 月亮产房 / 太阳产房（幼崽「吃播打架」名场面）→ 星星产房。", highlight: true, note: "为什么必须赶早：熊猫喜凉怕热，7:30—10:00 是进食玩耍高峰；10点后气温升高多数转入室内避暑；11:00—13:30 是幼崽午休时间；且 9:30 后客流爆发。" },
+        { time: "10:00", title: "10:00—10:30 撤出", type: "todo", detail: "把下午留给吃喝。" },
+        { time: "11:30", title: "午餐 · 落舌冒菜（海椒市街店）", type: "eat", friend: true, detail: "锦江区海椒市街10号附1号，仅此一家无分店。招牌：麻辣牛肉、千层肚、素冒菜、火锅粉、脑花。汤底有经典牛油味和干拌麻辣味两种。人均 35~45。", transit: "从熊猫基地回来顺路：2号线牛王庙 → 牛市口站（1站）A1口，步行约840米/10分钟；或打车约10分钟/15元。", note: "营业约 9:30—21:30，午晚均营。本地老店，非网红但游客多，饭点常排队；环境简陋座位挤。吐槽集中在「两人吃120+偏贵」「忙时服务顾不上」。" },
+        { time: "13:00", title: "备选午餐 · 甘记肥肠粉（马鞍北路店）", type: "eat", detail: "三十余年老店，红薯粉手工制作，配军屯锅盔是标准吃法。" },
+        { time: "14:30", title: "人民公园 · 鹤鸣茶社", type: "sight", detail: "盖碗茶 + 采耳，坐着发呆一小时，这是成都最核心的体验之一，下雨天也有棚。早上6:20起床，下午正好坐着歇脚。", transit: "2号线人民公园站，从牛王庙站直达，约20分钟。" },
+        { time: "16:00", title: "奎星楼街 / 宽窄巷子（只逛不吃）", type: "sight", detail: "奎星楼街是本地美食街，比宽窄巷子本身值得吃。⚠️ 宽窄巷子、锦里的餐饮重营销、价格偏高，建议只逛不吃。", transit: "奎星楼街在宽窄巷子旁。" },
+        { time: "17:30", title: "晚餐 · 石棉叶凤烧烤（琉璃店）或 串串", type: "eat", friend: true, detail: "**叶凤烧烤**：锦江区琉璃路1219号附6号，石棉「火上飘」铁板烧烤成都分店，全程专人代烤。招牌：大刀腰片、烤牛肉片、泡椒鱼片、五花肉、泡菜。人均 80~100，营业 17:00—次日02:00。", transit: "6号线顺江路站 → 三官堂 → 东光 → 琉璃场站（3站约8分钟），E口步行470米。或打车约15分钟/20元。", note: "**今晚早点吃、早点回**：明天 6:30 起床去都江堰。17:30 到店，20:00 前结束，21:00 前到酒店。", warn: "想改吃串串也行：龙户人家（春熙路店，离酒店最近）或屋头串串（抚琴西南路12号，配抚琴夜市）。" },
+        { time: "21:00", title: "回酒店 · 收拾去都江堰的东西", type: "todo", detail: "防滑鞋（石板路遇雨极滑）、折叠伞、一次性雨衣、身份证、充电宝。定好 6:30 闹钟。", highlight: true }
+      ]
+    },
+    {
+      id: "d1005",
+      tab: "10/5",
+      weekday: "周一",
+      title: "都江堰 + 收官大餐",
+      headline: "2号线直达犀浦，不用换乘 · 预报是这几天里相对最好的一天（阴）",
+      items: [
+        { time: "6:30", title: "起床", type: "todo", detail: "" },
+        { time: "7:00", title: "出发：2号线 牛王庙 → 犀浦", type: "transit", detail: "2号线往犀浦方向的终点站，约45分钟，全程不用换乘。", highlight: true },
+        { time: "8:00", title: "城际列车 犀浦 → 离堆公园站", type: "transit", detail: "约23分钟，单程10元。出站打车约10分钟到「秦堰楼6号门」。", note: "门票：成人80元，已预约「上午 08:00—10:00」时段。旺季检票 08:00—18:00，17:30 停止检票；日场票最晚须 20:00 前出园。" },
+        { time: "8:30", title: "都江堰景区 · 推荐路线", type: "sight", detail: "秦堰楼6号门 → 二王庙 → 安澜索桥 → 鱼嘴 → 飞沙堰 → 宝瓶口 → 离堆公园正门出。全程下坡、不走回头路，约 2~2.5 小时。", highlight: true, note: "想爬坡就从南门进；从6号门进会错过部分非核心景点，但省力省时间。可选：玉垒阁电梯40元单独购票，可俯瞰全景。", warn: "⚠️ 雨天注意：石板路 + 台阶遇雨极滑，务必穿防滑鞋；安澜索桥在雨中晃动明显，恐高者慎行。" },
+        { time: "11:30", title: "午餐 · 川江渔府（总店）", type: "eat", friend: true, detail: "都江堰市翔和路127号。创于2002的都江堰20+年本地老字号，非遗底料。招牌：非遗红锅鱼火锅、现杀花鲢/黄辣丁、美蛙、手工豆花、豆浆馍馍、甜皮鸭。人均 60~67。", transit: "从离堆公园正门/南桥步行约12分钟（800米~1公里），或打车3分钟/起步价。", note: "营业 10:30—22:30，正好接上你游完景区的时间。窗边位可赏南桥夜景；口碑「不宰客、家庭聚餐首选」。⚠️ 你朋友给的地址是「翔和路与观凤路交叉口东北方向29米」，实际门牌为翔和路127号，导航搜店名即可。" },
+        { time: "13:30", title: "下午三选一", type: "decision", detail: "A. 直接回成都【推荐】：约13:30 启程，15:00 前回到酒店，休息后从容吃收官大餐。\nB. 加游青城山前山：犀浦 → 青城山站高铁约28分钟；10月开放 8:30—17:00（16:30停止售票），成人票80。凑齐「拜水都江堰、问道青城山」。\nC. 留到晚上看「都江·夜堰」：沉浸式夜游，成人票80元需单独购票，20:00 后开始。", note: "我的建议是 A：守住「美食优先」，不暴走，而且今晚是你的自由夜，回成都才有得玩。", warn: "B 需爬山2~3小时，雨天湿滑，会大幅压缩晚餐时间。C 不建议：结束较晚，回成都近1.5小时，而明天 15:30 的航班要求 12:15 出发。" },
+        { time: "18:30", title: "晚餐 · 收官大餐", type: "eat", detail: "这一顿值得认真挑，和前几天不重样：① **拈一筷子（九眼桥店）**——宜宾江湖菜，干煸牛肉丝、荔枝烧花甲，适合3~4人，**离酒店最近可步行**；② 陶得砂锅（蜀汉路店，青豆肥肠、蒜蓉虾仁、土豆煨牛肉、鲫鱼水饺）；③ 饕林餐厅（春熙路店，非遗活渡鱼、特色回锅肉）；④ 或者再吃一顿火锅，把 10/3 没轮到的那家（蜀九香/电台巷/皇城老妈）补上。", highlight: true, note: "成都本地人的常规操作就是连着几天吃火锅不腻。" },
+        { time: "21:00", title: "安顺廊桥 + 合江亭夜景（10/2没看成的那次）", type: "sight", detail: "锦江两岸灯光，从酒店步行即达。这是成都最有辨识度的城市景观，**今晚是全程最后一个自由夜，专程来看最合适**。", note: "河岸蓝色灯带（「蓝眼泪」）约 23:00 关灯，21:00—22:30 是最佳时段。" },
+        { time: "21:30", title: "夜宵（可选）· 草屋烧烤", type: "eat", friend: true, detail: "锦江区晨辉东路2号附151号（同片区另标注为「晨辉北路3号5栋1楼附7-8号·琉璃场店」）。成都连锁烧烤，10年老店。招牌：烤猪蹄、掌中宝、大排骨、鸡皮、小香肠、五花肉、烤茄子。人均 46~68，营业约 17:00—次日01:00。", transit: "6号线顺江路 → 琉璃场站（3站直达），步行约600~800米。或打车约15分钟/20元。", warn: "⚠️ 如果晚餐已经吃了火锅或大餐，这顿就别硬塞了——叶凤烧烤昨晚已经吃过烧烤。想轻松点就只去安顺廊桥散步，或到九眼桥/兰桂坊喝一杯收尾。明天 12:15 必须上车。" },
+        { time: "23:00", title: "睡前 · 最后一晚准备", type: "todo", detail: "① 收拾行李，把伴手礼位置留好；② 再次跟前台确认明天延迟退房至 12:00 或行李寄存；③ 在网约车 App 里预约明天 08:50 去幺怪面的车；④ 查一下明天的天气。", highlight: true }
+      ]
+    },
+    {
+      id: "d1006",
+      tab: "10/6",
+      weekday: "周二",
+      title: "返程日 · 15:30 双流 T2",
+      headline: "有效活动时间只有 8:00—11:15，约3小时，必须做减法",
+      items: [
+        { time: "08:00", title: "起床收拾 · 行李寄存前台", type: "todo", detail: "酒店正常退房时间是 12:00，与出门时间几乎重叠。前一晚已确认延迟退房，或今早先把行李寄存前台，这样上午能玩到 11:15。", highlight: true },
+        { time: "08:50", title: "打车去幺怪面", type: "transit", detail: "锦江区龙舟东巷49号，打车约10分钟/15元。", warn: "⚠️ 地址更正：你朋友给的是「净居寺南街17号附6号」，但米其林榜单、工商登记、大众点评等所有可靠来源均显示幺怪面在「龙舟东巷49号」。两地直线距离约500米，同属净居寺/东湖片区，朋友可能记混了门牌。请以龙舟东巷49号为准，导航直接搜店名。" },
+        { time: "09:00", title: "早餐 · 幺怪面", type: "eat", friend: true, detail: "米其林必比登连续三年上榜、成都面馆50强。招牌：八宝海味面（招牌）、素椒杂酱面、火爆双脆面、笋子烧肉面，煎蛋必加。人均 19~25。", highlight: true, note: "⚠️ 营业约 09:00—16:00，仅午市，**周六休息** —— 所以原计划 10/3（周六）本来就去不了；今天周二正常营业，9:00 开门即到，赶在你 12:15 上车前绰绰有余。夫妻店仅一口锅，等面 20~30 分钟很常见；店面极小只能拼桌或坐路边。预计 9:45 前吃完。", transit: "备选走法：6号线到东光站换乘8号线1站到净居寺站，步行约600米。但返程日赶时间，建议直接打车。" },
+        { time: "10:00", title: "买伴手礼 · 春熙路 / 太古里", type: "todo", detail: "火锅底料、郫县豆瓣、张飞牛肉、蜀绣、竹叶青茶。超市和特产店都有。", transit: "2号线2站直达春熙路，最省事。更省事的选择：双流机场 T2 候机区也有特产店，价格略高，可以留到最后买。" },
+        { time: "11:15", title: "回酒店取行李、结账", type: "todo", detail: "", highlight: true },
+        { time: "12:15", title: "上车出发（硬性底线）", type: "transit", detail: "九眼桥 → 双流机场 T2，打车正常约30~40分钟，国庆返程日预留 60~75 分钟。九眼桥比春熙路离机场更近，这是你住这儿的一个实际好处。", highlight: true, warn: "⚠️ 这是全程最后一个不可妥协的时间点。地铁方案（牛王庙→春熙路换3号线→太平园换10号线→双流机场2航站楼站，约50~60分钟、6元）需要三次换乘 + 拎行李，返程日不推荐。" },
+        { time: "13:30", title: "抵达双流机场 T2", type: "transit", detail: "办值机、安检。国庆返程日机场内排队也会比平时长。", note: "✅ 10月6日成都地铁延时运营（各线延长50—60分钟），不过对下午的航班没影响，打车更稳。" },
+        { time: "15:30", title: "起飞 ✈️", type: "transit", detail: "" },
+        { time: "❌", title: "这天不要安排的", type: "avoid", detail: "杜甫草堂、金沙遗址 —— 占地大、走不完，返程日风险太高。永乐饭店（肖家河中街）11:30 才开餐，赶不上。上午活动只选一个，别贪多。" },
+        { time: "备选", title: "如果不想跑幺怪面", type: "decision", detail: "想给旅行一个「成都式」收尾 → 人民公园鹤鸣茶社再喝一次盖碗茶（2号线直达，约20分钟）。想清静收尾或雨大 → 成都博物馆（免费预约，室内；周一闭馆但法定节假日除外，10/6 正常开放）。还没去过景点 → 武侯祠·锦里（打车约25分钟）。三选一，别叠加。" }
+      ]
+    }
+  ],
+
+  /* SECTION: restaurants */
+  friendPicks: {
+    intro: "朋友推荐的这6家有个很妙的规律：其中5家都在你酒店东南侧两三公里内，正好串在地铁6号线一条线上（顺江路 → 三官堂 → 东光 → 琉璃场）。已按最顺路的方式嵌进对应日期的餐位。",
+    list: [
+      { name: "胖娃滋补蹄花", assigned: "10/2 夜宵 ⭐新调整", cat: "夜宵", addr: "成华区万年路8号院（万年路与积步街交叉口西南约100米）", addrNote: "", dishes: "药膳炖蹄花（35元/只，可续汤）、尖椒炒猪头肉、凉拌耳片、卤鸭腿、炒饭炒面", price: "人均 40~46", hours: "20:00—次日04:30（纯夜宵店，白天不开门）", transit: "你 21:50 到酒店，打车约15分钟/20元即达，22:25 开吃，时间很充裕。深夜不建议坐地铁（6号线牛王庙→玉双路换4号线2站到万年场，约20分钟，末班车有风险）", night: true, note: "成都「鬼饮食」代表、苍蝇馆子50强，本地夜猫子圣地，烟火气足、老板热情。10月初夜里凉爽，坐户外反而舒服", limit: "20:00 才开门 —— 正好接上你落地当晚，这是它能排在10/2的原因" },
+      { name: "落舌冒菜（海椒市街店）", assigned: "10/4 午餐", cat: "冒菜", addr: "锦江区海椒市街10号附1号", addrNote: "仅此一家，无分店", dishes: "麻辣牛肉（招牌）、千层肚、素冒菜、火锅粉、脑花", price: "人均 35~45", hours: "约 9:30—21:30（午晚均营）", transit: "从熊猫基地回来顺路：2号线牛王庙 → 牛市口站（1站）A1口，步行约840米；或打车约10分钟/15元", night: false, note: "本地老店，非网红但游客多，饭点常排队；环境简陋座位挤。吐槽：两人吃120+偏贵、忙时服务顾不上" },
+      { name: "石棉叶凤烧烤（琉璃店）", assigned: "10/4 晚餐", cat: "烧烤", addr: "锦江区琉璃路1219号附6号", addrNote: "石棉「火上飘」铁板烧烤成都分店", dishes: "大刀腰片、烤牛肉片、泡椒鱼片、五花肉、泡菜", price: "人均 80~100", hours: "约 17:00—次日02:00（仅晚市+夜宵）", transit: "6号线顺江路 → 琉璃场站E口（3站约8分钟），步行470米；或打车约15分钟/20元", night: true, note: "全程专人代烤，体验感强（火焰表演）。中午菜品未备齐不建议去。吐槽：价格小贵、位置偏远", limit: "10/4 要早吃早回（明天6:30起床去都江堰）：17:30 到店、20:00 前结束" },
+      { name: "草屋烧烤（晨辉东路金象店）", assigned: "10/5 夜宵（可选）", cat: "烧烤", addr: "锦江区晨辉东路2号附151号", addrNote: "同片区另标注为「晨辉北路3号5栋1楼附7-8号·琉璃场店」", dishes: "烤猪蹄、掌中宝、大排骨、鸡皮、小香肠、五花肉、烤茄子", price: "人均 46~68", hours: "约 17:00—次日01:00（仅晚市+夜宵，以到店为准）", transit: "6号线顺江路 → 琉璃场站（3站直达），步行约600~800米；或打车约15分钟/20元", night: true, note: "成都连锁烧烤，10年老店，味道稳定性价比高，有包间。吐槽：现烤较慢需等", limit: "⚠️ 与叶凤烧烤同为烧烤、且都在琉璃场同一片区 —— 10/4 吃了叶凤，10/5 就不必再吃这家，换成安顺廊桥散步或九眼桥喝一杯更好" },
+      { name: "幺怪面", assigned: "10/6 早餐", cat: "面馆", addr: "锦江区龙舟东巷49号", addrNote: "⚠️ 地址更正：朋友给的「净居寺南街17号附6号」未查到该店，所有可靠来源均指向龙舟东巷49号，两地相距约500米", dishes: "八宝海味面（招牌）、素椒杂酱面、火爆双脆面、笋子烧肉面，煎蛋必加", price: "人均 19~25", hours: "约 09:00—16:00，仅午市，周六休息", transit: "打车约10分钟/15元；或6号线到东光站换8号线1站到净居寺站，步行约600米", night: false, note: "米其林必比登连续三年上榜、成都面馆50强。夫妻店仅一口锅，等面20~30分钟常见；店面极小只能拼桌或坐路边", limit: "周六休息 + 仅午市 → 只能排在 10/6（周二）早餐，这个位置正好" },
+      { name: "川江渔府（总店）", assigned: "10/5 午餐", cat: "鱼火锅", addr: "都江堰市翔和路127号", addrNote: "创于2002。朋友给的「翔和路与观凤路交叉口东北方向29米」实际门牌为翔和路127号，导航搜店名即可", dishes: "非遗红锅鱼火锅、现杀花鲢/黄辣丁、美蛙、手工豆花、豆浆馍馍、甜皮鸭", price: "人均 60~67", hours: "10:30—22:30", transit: "距都江堰景区南桥/离堆公园正门约 800米~1公里，步行约12分钟，打车3分钟/起步价", night: false, note: "都江堰20+年本地老字号，非遗底料。窗边位可赏南桥夜景；口碑「不宰客、家庭聚餐首选」" }
+    ]
+  },
+
+  foodList: [
+    { cat: "火锅", tip: "按「17:00 前到店不排队」原则错峰 · 已排在 10/3 晚餐", items: [
+      { name: "蜀九香（倪家桥店）", addr: "武侯区倪家桥路10号", dish: "九宫格专利设计 + 浓郁牛油锅底，九香牛肉涮10秒蘸香油蒜泥" },
+      { name: "电台巷火锅（科华北路店）", addr: "武侯区科华北路143号", dish: "手工牛油，毛肚+鸭血+蛋炒饭三件套，16:00前免锅底" },
+      { name: "星鸿社老火锅（玉林店）", addr: "武侯区玉林南路15号", dish: "牛油醇厚，丑酥肉、耙牛肉必点，17:00前不排队" },
+      { name: "大龙燚（太古里店）", addr: "锦江区中纱帽街8号远洋太古里2层", dish: "重麻重辣、后劲足，嫩牛肉入味，有双拼锅适配外地口味。离酒店最近，打车10分钟", near: true },
+      { name: "皇城老妈（琴台路店）", addr: "青羊区琴台路106号", dish: "1986年创建，成都营业时间最长的火锅品牌之一，环境典雅，毛肚鸭肠新鲜" },
+      { name: "鹏鹏妈老火锅（宽窄巷子店）", addr: "宽窄巷子片区居民楼下", dish: "卤味特色，辣卤肥肠、卤猪蹄、卤耙牛肉入锅越煮越香，人均85~90" },
+      { name: "谭鸭血老火锅（建设路店）", addr: "成华区建设路26号", dish: "鸭血现煮 + 老鹰茶锅底，鸭血+卤味双绝" },
+      { name: "天星正源老火锅（海椒市店/地勘路店）", addr: "锦江区海椒市 / 地铁8号线杉板桥站A口步行10分钟", dish: "牛市口社区老牌，无过度营销。必点鲜毛肚、鸭血、卤肥肠" },
+      { name: "承裕两口子原味老火锅（天廊店）", addr: "锦江区河铺路60号天廊广场S1层SO5", dish: "重庆老火锅风味，人均80+" },
+      { name: "吴铭鲜货火锅", addr: "武侯祠锦里附近", dish: "20年老店，鲜货现点现切" },
+      { name: "骆嬢嬢老火锅（春熙路）", addr: "锦江区春熙路", dish: "手工牛油 + 清油双锅底，牛油每日现炒，拒绝网红溢价" },
+      { name: "火起来火锅（牛市口店）", addr: "锦江区水碾河路10号", dish: "地铁4号线玉双路站B口步行300米。全天营业11:00—23:00，不接受电话预订，建议错峰到店" }
+    ]},
+    { cat: "串串", tip: "10/3 晚餐的备选", items: [
+      { name: "云记卢妈冷锅串串（中道街店）", addr: "中道街", dish: "仅一家直营店，纯手工熬制红油锅底" },
+      { name: "屋头串串", addr: "金牛区抚琴西南路12号（抚琴夜市旁）", dish: "20年本土口碑，一次性锅底现开现倒。哈儿牛肉（一头牛仅产6公斤元宝肉，现切现串）、小郡肝、手工虾滑、耙鸡爪。金牛区串串热门榜常年第一" },
+      { name: "龙户人家串串香", addr: "春熙路、宽窄巷子均有店", dish: "2001年至今20多年，连续六年入选大众点评必吃榜。春熙路店离酒店最近", near: true }
+    ]},
+    { cat: "苍蝇馆子", tip: "成都的精髓在这里，人均多在30~60", items: [
+      { name: "明婷饭店", addr: "金牛区外曹家巷26号（地铁3号线红星桥站步行可达）", dish: "被誉为「成都最牛苍蝇馆子」，开业近30年。脑花豆腐（拌饭一绝）、奇香排骨、荷叶酱肉、葱爆腰花。人均50~60" },
+      { name: "雨田饭店", addr: "锦江区红星路二段20号", dish: "1985年开业。红烧肉、大骨藕汤、烧白、粉蒸排骨，一份荤菜约20元。离酒店近，打车约10分钟", near: true },
+      { name: "巷子肥肠", addr: "武侯区科华巷2号", dish: "开了30年的「老破小」，成都肥肠天花板。卤肥肠软糯入味、肥肠血旺拌饭一绝，人均30。营业 11:30—14:00 / 17:00—20:00" },
+      { name: "永乐饭店", addr: "肖家河中街", dish: "三十多年老牌土著食堂，饭点满屋成都叔叔嬢嬢。肝腰合炒（嫩而不腥）、糯米排骨、清鲜丸子汤，人均48~55，⚠️ 11:30 开餐（返程日赶不上）" },
+      { name: "黑竹香鸡", addr: "营和巷40号", dish: "乌鸡+芋头的神仙组合，芋儿煮到起沙，魔芋和笋片是灵魂。人均45。⚠️ 下午4点放号，必排队" },
+      { name: "黄孃甜不辣", addr: "武侯区", dish: "油炸爱好者的天堂，人均35" },
+      { name: "三哥田螺", addr: "北书院街", dish: "主营夜宵，火爆黄喉、田螺，营业至凌晨" },
+      { name: "沈堂甜水面", addr: "芳草街新能巷2号", dish: "居民楼下神级摊子，甜水面粗韧有嚼劲、甜辣酱裹满，配红油抄手。人均15。⚠️ 只卖中午 9:00—14:00，去晚无" }
+    ]},
+    { cat: "川菜 / 江湖菜", tip: "10/5 收官大餐", items: [
+      { name: "拈一筷子（九眼桥店 / 玉林店）", addr: "九眼桥 / 玉林", dish: "宜宾江湖菜，干煸牛肉丝、荔枝烧花甲，适合3~4人聚餐。**九眼桥店离酒店最近，可步行**", near: true },
+      { name: "陈麻婆豆腐（骡马市总店）", addr: "青羊区骡马市", dish: "中华老字号，麻婆豆腐「七味一体」，回锅肉、宫保鸡丁都是标准味型" },
+      { name: "陶得砂锅（蜀汉路店）", addr: "蜀汉路", dish: "青豆肥肠、蒜蓉虾仁、土豆煨牛肉、鲫鱼水饺" },
+      { name: "饕林餐厅（春熙路店）", addr: "春熙路", dish: "非遗活渡鱼、特色回锅肉" }
+    ]},
+    { cat: "面 / 粉 / 小吃", tip: "", items: [
+      { name: "甘记肥肠粉（马鞍北路店）", addr: "马鞍北路", dish: "三十余年老店，红薯粉手工制作，配军屯锅盔是标准吃法" },
+      { name: "家常味（华兴东街）", addr: "华兴东街", dish: "专卖素椒杂酱面，每天限量供应，仅中午营业，去晚没有" },
+      { name: "洞子口张老二凉粉（文殊院店）", addr: "文殊院", dish: "招牌甜水面，面条粗壮、甜辣酱裹满" }
+    ]},
+    { cat: "夜市 / 小吃街", tip: "朝人最多的队排，基本不会错", items: [
+      { name: "建设巷", addr: "成华区建设路（紧邻电子科大）", dish: "成都夜市小吃代表。烤脑花、周签签锅巴土豆（推荐糖醋麻辣味）、锅巴虾滑、烤苕皮、铁板肥肠、蛋烘糕。6号线建设北路站直达，从酒店约25分钟" },
+      { name: "奎星楼街", addr: "宽窄巷子旁", dish: "本地美食街，比宽窄巷子本身值得吃" },
+      { name: "抚琴夜市", addr: "金牛区抚琴西南路", dish: "就在屋头串串旁边，吃完串串直接逛" },
+      { name: "九眼桥 / 兰桂坊", addr: "酒店旁", dish: "成都夜生活地标，锦江沿岸。零通勤成本，适合 10/5 自由夜", near: true },
+      { name: "香香巷", addr: "锦江区", dish: "小众美食巷" }
+    ]},
+    { cat: "都江堰当地", tip: "10/5 当天", items: [
+      { name: "川江渔府（总店）", addr: "都江堰市翔和路127号", dish: "非遗红锅鱼火锅、现杀花鲢/黄辣丁、手工豆花、豆浆馍馍、甜皮鸭。人均60~67。距南桥步行约12分钟", friend: true },
+      { name: "南桥 / 幸福路一带", addr: "都江堰景区正门外", dish: "本地小吃集中，出景区即到。当地可试：尤兔头、白果炖鸡、青城山老腊肉、都江堰猕猴桃（10月当季）" }
+    ]}
+  ],
+
+  /* SECTION: backup */
+  backup: {
+    intro: "若某天雨势过大，用以下替换户外行程：",
+    items: [
+      { name: "金沙遗址博物馆", addr: "青羊区", note: "古蜀文明，与三星堆一脉相承，室内展馆为主。若三星堆票没抢到，这是最好的替代" },
+      { name: "成都博物馆", addr: "天府广场旁", note: "免费预约。周一闭馆，但法定节假日除外，10月5日、6日均正常开放。2号线人民公园站/天府广场站可达" },
+      { name: "四川博物院", addr: "浣花溪", note: "免费" },
+      { name: "成都自然博物馆", addr: "成都理工大学博物馆", note: "中秋国庆假期实行延时开放，地铁3号线十里店站附近" },
+      { name: "川菜博物馆", addr: "郫都区（较远）", note: "可动手体验做川菜，美食主题契合度最高" }
+    ],
+    djyRain: "若 10月5日大雨：都江堰全户外体验会很差，可改为「金沙遗址 + 成都博物馆」双馆日，把都江堰彻底舍弃，不必硬去。"
+  },
+
+  /* SECTION: budget */
+  budget: {
+    note: "每人，不含住宿与机票",
+    rows: [
+      { item: "熊猫基地", detail: "门票55 + 观光车30 + 打车往返约100", amount: "约185" },
+      { item: "三星堆", detail: "门票72 + 高铁往返约40 + 接驳约40", amount: "约150（讲解另计）" },
+      { item: "都江堰", detail: "门票80 + 城际往返20 + 接驳约40", amount: "约140" },
+      { item: "市内地铁 + 打车（4天）", detail: "含10/2深夜往返蹄花店约40", amount: "约240" },
+      { item: "餐饮（4天）", detail: "火锅人均80~120 / 苍蝇馆子30~60 / 小吃20~40 / 夜宵50~100", amount: "约700~1100" }
+    ],
+    total: "约 1400~1800",
+    extra: "青城山前山 +80、「都江·夜堰」+80、玉垒阁电梯 +40，按是否选择另计"
+  },
+
+  /* SECTION: overview */
+  overview: [
+    { date: "10/2 周五", main: "20:20 落地天府T2 → 打车 → 胖娃蹄花夜宵", eat: "胖娃滋补蹄花（22:25 开吃）", key: "打车约21:50到酒店；00:00前睡" },
+    { date: "10/3 周六", main: "⭐三星堆整天（已对调）", eat: "广汉午餐 → 火锅 → 早回酒店", key: "08:00 出发，约09:40 到馆；21:30 前回酒店" },
+    { date: "10/4 周日", main: "⭐熊猫基地（西门进，已对调）", eat: "落舌冒菜 → 人民公园喝茶 → 叶凤烧烤", key: "6:50 出发，7:30 开园即入" },
+    { date: "10/5 周一", main: "都江堰（+可选青城山）", eat: "川江渔府 → 收官大餐 → 安顺廊桥夜景", key: "07:00 出发；13:30 前启程返回" },
+    { date: "10/6 周二", main: "幺怪面早餐 → 买伴手礼 → 返程", eat: "幺怪面（龙舟东巷49号）", key: "15:30 双流T2起飞；12:15 必须上车；11:15 回酒店取行李" }
+  ]
+};
+
+</script>
+<script>
+/* SECTION: app-script */
+(function(){
+  "use strict";
+  var D = window.TRIP_DATA;
+  var tabsEl = document.getElementById("tabs");
+  var mainEl = document.getElementById("main");
+  var fabEl = document.getElementById("fab");
+  var footEl = document.getElementById("foot");
+
+  /* SECTION: storage — 勾选状态存当前浏览器本地 */
+  var LS_KEY = "cd-trip-todos-v1";
+  var LS_ALERT = "cd-trip-alerts-v1";
+  function loadState(){
+    try{ var raw = localStorage.getItem(LS_KEY); return raw ? JSON.parse(raw) : {}; }
+    catch(e){ return {}; }
+  }
+  function saveState(s){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){}
+  }
+  var doneMap = loadState();
+
+  /* SECTION: escape */
+  function esc(s){
+    if(s === null || s === undefined) return "";
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  /* SECTION: inline-bold — 把 **粗体** 与 ⚠️ 标记转成安全标签 */
+  function rich(s){
+    if(!s) return "";
+    var out = esc(s).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+    return out.replace(/\n/g, "<br>");
+  }
+
+  /* SECTION: type-labels */
+  var TYPE_LABEL = { eat:"吃", sight:"逛", transit:"行", todo:"办", avoid:"避", decision:"选" };
+  var TYPE_CLASS = { eat:"p-eat", sight:"p-sight", transit:"p-transit", todo:"p-todo", avoid:"p-avoid", decision:"p-decision" };
+
+  /* SECTION: tab-model */
+  var TABS = [];
+  D.days.forEach(function(d){ TABS.push({ id:d.id, label:d.tab, sub:d.weekday }); });
+  TABS.push({ id:"p-ticket", label:"抢票", sub:"待办" });
+  TABS.push({ id:"p-food",   label:"美食", sub:"清单" });
+  TABS.push({ id:"p-info",   label:"实用", sub:"交通天气" });
+  TABS.push({ id:"p-over",   label:"速记", sub:"总览" });
+
+  /* SECTION: default-tab — 出行期间自动定位到当天 */
+  function defaultTab(){
+    var now = new Date();
+    var key = now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate();
+    var map = { "2026-10-2":"d1002","2026-10-3":"d1003","2026-10-4":"d1004","2026-10-5":"d1005","2026-10-6":"d1006" };
+    if(map[key]) return map[key];
+    var tripStart = new Date(2026,9,2);
+    if(now < tripStart) return "p-ticket";   /* 出行前：先看抢票 */
+    return "p-over";
+  }
+
+  /* SECTION: render-alerts — 常驻警示，渲染到 #alerts，所有 tab 下均可见 */
+  function alertStack(){
+    var h = '<div class="alertwrap" id="alertwrap">';
+    h += '<button class="alert-toggle" id="alertToggle" type="button" aria-expanded="true">'
+      +  '<span>⚠️ 全程必读提醒（' + D.alerts.length + '）</span><span class="chev" id="alertChev">▾</span></button>';
+    h += '<div id="alertBody">';
+    D.alerts.forEach(function(a){
+      h += '<div class="alert ' + a.level + '">';
+      h += '<h4>' + (a.level === "danger" ? "🚨 " : "⚠️ ") + esc(a.title) + '</h4>';
+      h += '<p>' + rich(a.body) + '</p>';
+      if(a.action) h += '<div class="act">→ ' + rich(a.action) + '</div>';
+      h += '</div>';
+    });
+    h += '</div></div>';
+    return h;
+  }
+
+  /* SECTION: render-day */
+  function dayPanel(d){
+    var h = '<div class="dayhead">';
+    h += '<div class="dt">' + esc(d.tab) + ' ' + esc(d.weekday) + '</div>';
+    h += '<h3>' + esc(d.title) + '</h3>';
+    if(d.headline) h += '<div class="hl">' + rich(d.headline) + '</div>';
+    h += '</div>';
+    h += '<div class="tl">';
+    d.items.forEach(function(it){
+      var cls = "ev" + (it.highlight ? " key" : "");
+      h += '<div class="' + cls + '">';
+      h += '<div class="tm">' + esc(it.time) + '</div>';
+      h += '<div class="dot"></div>';
+      h += '<div class="body">';
+      h += '<div class="tt">' + esc(it.title)
+        +  '<span class="pill ' + (TYPE_CLASS[it.type] || "p-todo") + '">' + (TYPE_LABEL[it.type] || "") + '</span>'
+        +  (it.friend ? '<span class="pill p-friend">朋友推荐</span>' : '')
+        +  '</div>';
+      if(it.detail) h += '<p class="dt2">' + rich(it.detail) + '</p>';
+      if(it.transit) h += '<div class="sub transit">🚇 ' + rich(it.transit) + '</div>';
+      if(it.note)    h += '<div class="sub note">💡 ' + rich(it.note) + '</div>';
+      if(it.warn)    h += '<div class="sub warn">⚠️ ' + rich(it.warn) + '</div>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  /* SECTION: render-ticket */
+  function ticketPanel(){
+    var done = D.todos.filter(function(t){ return doneMap[t.id]; }).length;
+    var h = '<div class="dayhead"><div class="dt">抢票与待办</div><h3>三个景点全部线上实名预约</h3>'
+      + '<div class="hl">已完成 ' + done + ' / ' + D.todos.length + ' 项 · 勾选状态保存在本机浏览器，下次打开仍在</div></div>';
+    h += '<div id="todoList">';
+    D.todos.forEach(function(t){
+      var isDone = !!doneMap[t.id];
+      h += '<div class="todo' + (isDone ? " done" : "") + '" data-todo="' + esc(t.id) + '" role="checkbox" aria-checked="' + (isDone?"true":"false") + '" tabindex="0">';
+      h += '<div class="cbx">' + (isDone ? "✓" : "") + '</div>';
+      h += '<div style="flex:1;min-width:0">';
+      h += '<div class="tt2">' + esc(t.priority) + ' ' + esc(t.title) + '</div>';
+      h += '<div class="dl">⏰ ' + esc(t.deadline) + '</div>';
+      if(t.detail)  h += '<div class="row">' + rich(t.detail) + '</div>';
+      if(t.price)   h += '<div class="row"><b>价格：</b>' + esc(t.price) + '</div>';
+      if(t.hours)   h += '<div class="row"><b>开放：</b>' + esc(t.hours) + '</div>';
+      if(t.channel) h += '<div class="sub note">🎫 ' + rich(t.channel) + '</div>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+    h += '<div class="card"><h4>统一注意事项</h4>'
+      + '<div class="row">1. 三个景点全部线上实名预约、刷<b>身份证原件</b>入园，现场均不设售票窗口，白跑一趟概率极高。</div>'
+      + '<div class="row">2. 三星堆<b>未授权任何第三方售票</b>，只认官方公众号、小程序、官网 sxd.cn。</div>'
+      + '<div class="row">3. 熊猫基地明确<b>不支持二维码入园</b>。</div>'
+      + '<div class="row">4. 都江堰门票当日单次有效，未使用须在游览截止前退订。</div></div>';
+    return h;
+  }
+
+  /* SECTION: render-food */
+  function foodPanel(){
+    var h = '<div class="dayhead"><div class="dt">美食清单</div><h3>朋友推荐 6 家 + 本地分类清单</h3>'
+      + '<div class="hl">' + rich(D.friendPicks.intro) + '</div></div>';
+    h += '<h2 class="sec">朋友推荐（已排进对应餐位）</h2>';
+    D.friendPicks.list.forEach(function(r){
+      h += '<div class="card">';
+      h += '<h4>' + esc(r.name) + '<span class="tag asg">' + esc(r.assigned) + '</span><span class="tag">' + esc(r.cat) + '</span></h4>';
+      h += '<dl class="kv">';
+      h += '<dt>地址</dt><dd>' + esc(r.addr) + '</dd>';
+      h += '<dt>招牌</dt><dd>' + esc(r.dishes) + '</dd>';
+      h += '<dt>价格</dt><dd>' + esc(r.price) + '</dd>';
+      h += '<dt>营业</dt><dd>' + esc(r.hours) + '</dd>';
+      h += '<dt>怎么去</dt><dd>' + esc(r.transit) + '</dd>';
+      h += '</dl>';
+      if(r.addrNote) h += '<div class="sub warn">📍 ' + rich(r.addrNote) + '</div>';
+      if(r.limit)    h += '<div class="sub danger">⛔ ' + rich(r.limit) + '</div>';
+      if(r.note)     h += '<div class="sub note">💡 ' + rich(r.note) + '</div>';
+      h += '</div>';
+    });
+
+    h += '<h2 class="sec">本地分类清单</h2>';
+    D.foodList.forEach(function(c){
+      h += '<div class="cat-h">' + esc(c.cat) + (c.tip ? '<small>' + esc(c.tip) + '</small>' : '') + '</div>';
+      c.items.forEach(function(i){
+        h += '<div class="dish"><div class="n">' + esc(i.name)
+          + (i.near ? '<span class="badge near">离酒店近</span>' : '')
+          + (i.friend ? '<span class="badge fr">朋友推荐</span>' : '') + '</div>';
+        if(i.addr) h += '<div class="a">📍 ' + esc(i.addr) + '</div>';
+        h += '<div class="d">' + esc(i.dish) + '</div></div>';
+      });
+    });
+    return h;
+  }
+
+  /* SECTION: render-info */
+  function infoPanel(){
+    var h = '<h2 class="sec">交通速查（以酒店为起点）</h2>';
+    h += '<div class="card" style="padding:0;overflow:hidden"><div class="scroll" style="margin:0;border-radius:0">'
+      + '<table class="tbl" style="border:0;border-radius:0"><thead><tr><th>目的地</th><th>走法</th><th>耗时</th></tr></thead><tbody>';
+    D.transit.forEach(function(t){
+      h += '<tr><td><b>' + esc(t.to) + '</b>' + (t.note ? '<br><span style="font-size:12px;color:var(--ink-3)">' + esc(t.note) + '</span>' : '') + '</td>'
+        +  '<td>' + esc(t.how) + '</td><td class="amt">' + esc(t.time) + '</td></tr>';
+    });
+    h += '</tbody></table></div></div>';
+
+    h += '<div class="card"><h4>酒店位置</h4>'
+      + '<div class="row"><b>' + esc(D.meta.hotel) + '</b></div>'
+      + '<div class="row">' + esc(D.meta.hotelArea) + '</div>'
+      + '<div class="row">最近地铁站：' + esc(D.meta.nearestMetro) + '</div>'
+      + '<div class="sub note">💡 2号线往西直达犀浦（都江堰）、往东直达成都东客站（三星堆），两条远郊线路都不用换乘；6号线直达建设北路站（建设巷）和琉璃场站（叶凤/草屋烧烤）；夜宵步行可达九眼桥、兰桂坊。</div>'
+      + '<div class="sub warn">⚠️ 入住时向前台确认最近地铁站和步行距离，或用地图App实测一次。本页时间估算按「到牛王庙站步行10分钟内」计。</div></div>';
+
+    h += '<h2 class="sec">熊猫基地国庆交通专项</h2>';
+    h += '<div class="card"><div class="row">' + rich(D.pandaTransit.intro) + '</div></div>';
+    D.pandaTransit.options.forEach(function(o){
+      h += '<div class="card"><h4>' + esc(o.name) + '<span class="tag">' + esc(o.tag) + '</span></h4>'
+        + '<div class="row">' + esc(o.how) + '</div>'
+        + '<div class="sub note">' + rich(o.verdict) + '</div></div>';
+    });
+    h += '<div class="card"><h4>园内动线与花花</h4>'
+      + '<div class="row">' + rich(D.pandaTransit.route) + '</div>'
+      + '<div class="sub note">🐼 ' + rich(D.pandaTransit.huahua) + '</div>'
+      + '<div class="sub note">📅 ' + rich(D.pandaTransit.otherClose) + '</div>'
+      + '<div class="sub transit">🌧 ' + rich(D.pandaTransit.rain) + '</div></div>';
+
+    h += '<h2 class="sec">天气</h2>';
+    h += '<div class="card"><div class="row">' + esc(D.weather.note) + '</div></div>';
+    h += '<div class="scroll"><table class="tbl"><thead><tr><th>日期</th><th>墨迹 9/24</th><th>2345 9/23</th><th>综合</th></tr></thead><tbody>';
+    D.weather.rows.forEach(function(r){
+      h += '<tr' + (r.best ? ' class="best"' : '') + '><td><b>' + esc(r.date) + '</b></td><td>' + esc(r.moji) + '</td><td>' + esc(r.w2345) + '</td><td>' + esc(r.verdict) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    h += '<div class="card"><h4>背景判断</h4><div class="row">' + rich(D.weather.background) + '</div></div>';
+    h += '<div class="card"><h4>穿衣与装备</h4>';
+    D.weather.packing.forEach(function(p){ h += '<div class="row">• ' + esc(p) + '</div>'; });
+    h += '</div>';
+    h += '<div class="card"><h4>天气对行程的影响</h4>';
+    D.weather.impact.forEach(function(i){
+      h += '<div class="row"><b>' + esc(i.spot) + '</b> ' + (i.ok ? '✅' : '⚠️') + ' ' + esc(i.note) + '</div>';
+    });
+    h += '</div>';
+
+    h += '<h2 class="sec">雨天 / 暴雨备选</h2>';
+    h += '<div class="card"><div class="row">' + esc(D.backup.intro) + '</div></div>';
+    D.backup.items.forEach(function(b){
+      h += '<div class="dish"><div class="n">' + esc(b.name) + '</div><div class="a">📍 ' + esc(b.addr) + '</div><div class="d">' + esc(b.note) + '</div></div>';
+    });
+    h += '<div class="alert danger"><h4>🚨 若 10/5 大雨</h4><p>' + rich(D.backup.djyRain) + '</p></div>';
+
+    h += '<h2 class="sec">预算参考</h2>';
+    h += '<div class="scroll"><table class="tbl"><thead><tr><th>项目</th><th>明细</th><th>金额</th></tr></thead><tbody>';
+    D.budget.rows.forEach(function(b){
+      h += '<tr><td><b>' + esc(b.item) + '</b></td><td>' + esc(b.detail) + '</td><td class="amt">' + esc(b.amount) + '</td></tr>';
+    });
+    h += '<tr class="best"><td><b>合计</b></td><td>' + esc(D.budget.note) + '</td><td class="amt">' + esc(D.budget.total) + '</td></tr>';
+    h += '</tbody></table></div>';
+    h += '<div class="card"><div class="row">' + esc(D.budget.extra) + '</div></div>';
+    return h;
+  }
+
+  /* SECTION: render-overview */
+  function overPanel(){
+    var h = '<div class="dayhead"><div class="dt">一页速记</div><h3>' + esc(D.meta.title) + '</h3>'
+      + '<div class="hl">' + esc(D.meta.subtitle) + ' · ' + esc(D.meta.stayNights) + '</div></div>';
+    D.overview.forEach(function(o){
+      h += '<div class="card"><h4>' + esc(o.date) + '</h4>'
+        + '<div class="row"><b>主线：</b>' + esc(o.main) + '</div>'
+        + '<div class="row"><b>吃饭：</b>' + esc(o.eat) + '</div>'
+        + '<div class="sub warn">⏰ ' + esc(o.key) + '</div></div>';
+    });
+    h += '<h2 class="sec">为什么这样排</h2>';
+    h += '<div class="card"><div class="row"><b>延长一天后，三个景点全保住了。</b>原方案（10/5离开）只有2个整天，我曾建议舍弃都江堰——它全户外怕雨、又卡在返程日。现在多一天，取舍不成立了。</div>'
+      + '<div class="row"><b>10/3 三星堆 + 10/4 熊猫基地 + 10/5 都江堰</b>的排序逻辑：三星堆是室内馆，放在雨概率最高的10/3；熊猫必须赶7:30开园（10点后就躲进室内），10/4 是周日且在国庆假期内，6号别墅正常开放；都江堰全户外最怕雨，而目前预报10/5是这几天里相对最好的一天（阴而非雨）。</div>'
+      + '<div class="row"><b>这次对调（10/3⇄10/4）让节奏更顺</b>：10/2 深夜吃完蹄花，10/3 只需7:00起床；而唯一需要6:20猛早起的熊猫基地，被放到已经休整过一天之后。蹄花挪到落地当晚也正好——它20:00才开门。</div>'
+      + '<div class="row"><b>10/5 下午建议直接回成都</b>，不赶青城山、不留夜堰——守住「美食优先」，也为次日12:15上车的硬底线留出体力。</div></div>';
+    return h;
+  }
+
+  /* SECTION: render-tabs */
+  TABS.forEach(function(t){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "tab"; b.id = "tab-" + t.id;
+    b.setAttribute("role","tab"); b.setAttribute("aria-selected","false");
+    b.setAttribute("data-tab", t.id);
+    b.innerHTML = esc(t.label) + '<span>' + esc(t.sub) + '</span>';
+    tabsEl.appendChild(b);
+  });
+
+  /* SECTION: render-panels */
+  document.getElementById("alerts").innerHTML = alertStack();
+  var html = "";
+  TABS.forEach(function(t){
+    var inner = "";
+    var day = null;
+    D.days.forEach(function(d){ if(d.id === t.id) day = d; });
+    if(day) inner = dayPanel(day);
+    else if(t.id === "p-ticket") inner = ticketPanel();
+    else if(t.id === "p-food")   inner = foodPanel();
+    else if(t.id === "p-info")   inner = infoPanel();
+    else if(t.id === "p-over")   inner = overPanel();
+    html += '<section class="panel" id="panel-' + t.id + '" role="tabpanel" aria-labelledby="tab-' + t.id + '">' + inner + '</section>';
+  });
+  mainEl.innerHTML = html;
+
+  footEl.innerHTML = esc(D.meta.hotel) + '<br>' + esc(D.meta.updatedNote);
+
+  /* SECTION: switch-tab */
+  var current = null;
+  function selectTab(id, scroll){
+    current = id;
+    TABS.forEach(function(t){
+      var btn = document.getElementById("tab-" + t.id);
+      var pan = document.getElementById("panel-" + t.id);
+      var on = (t.id === id);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      pan.classList.toggle("on", on);
+      if(on){
+        var r = btn.getBoundingClientRect();
+        if(r.left < 4 || r.right > window.innerWidth - 4){
+          btn.scrollIntoView({ inline:"center", block:"nearest", behavior:"smooth" });
+        }
+      }
+    });
+    if(scroll !== false) window.scrollTo({ top:0, behavior:"auto" });
+    updateFab();
+  }
+
+  tabsEl.addEventListener("click", function(e){
+    var b = e.target.closest("[data-tab]");
+    if(b) selectTab(b.getAttribute("data-tab"));
+  });
+
+  /* SECTION: alert-collapse */
+  (function(){
+    var collapsed = false;
+    try{ collapsed = localStorage.getItem(LS_ALERT) === "1"; }catch(e){}
+    function apply(){
+      var body = document.getElementById("alertBody");
+      var chev = document.getElementById("alertChev");
+      var btn  = document.getElementById("alertToggle");
+      if(!body) return;
+      body.style.display = collapsed ? "none" : "block";
+      if(chev) chev.textContent = collapsed ? "▸" : "▾";
+      if(btn) btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+    apply();
+    var t = document.getElementById("alertToggle");
+    if(t) t.addEventListener("click", function(){
+      collapsed = !collapsed;
+      try{ localStorage.setItem(LS_ALERT, collapsed ? "1" : "0"); }catch(e){}
+      apply();
+    });
+  })();
+
+  /* SECTION: todo-toggle — REQ-003 */
+  mainEl.addEventListener("click", function(e){
+    var row = e.target.closest("[data-todo]");
+    if(!row) return;
+    toggleTodo(row);
+  });
+  mainEl.addEventListener("keydown", function(e){
+    if(e.key !== "Enter" && e.key !== " ") return;
+    var row = e.target.closest("[data-todo]");
+    if(!row) return;
+    e.preventDefault(); toggleTodo(row);
+  });
+  function toggleTodo(row){
+    var id = row.getAttribute("data-todo");
+    var on = !doneMap[id];
+    if(on) doneMap[id] = true; else delete doneMap[id];
+    saveState(doneMap);
+    row.classList.toggle("done", on);
+    row.setAttribute("aria-checked", on ? "true" : "false");
+    var cb = row.querySelector(".cbx");
+    if(cb) cb.textContent = on ? "✓" : "";
+    var done = D.todos.filter(function(t){ return doneMap[t.id]; }).length;
+    var hl = document.querySelector("#panel-p-ticket .hl");
+    if(hl) hl.textContent = "已完成 " + done + " / " + D.todos.length + " 项 · 勾选状态保存在本机浏览器，下次打开仍在";
+    row.animate([{transform:"scale(1)"},{transform:"scale(.985)"},{transform:"scale(1)"}], {duration:160});
+  }
+
+  /* SECTION: fab — REQ-001/002 定位到当天重点 */
+  function isDay(id){ for(var i=0;i<D.days.length;i++){ if(D.days[i].id===id) return true; } return false; }
+  function todayTab(){
+    var now = new Date();
+    var map = { "2026-10-2":"d1002","2026-10-3":"d1003","2026-10-4":"d1004","2026-10-5":"d1005","2026-10-6":"d1006" };
+    return map[now.getFullYear() + "-" + (now.getMonth()+1) + "-" + now.getDate()] || "d1003";
+  }
+  function updateFab(){
+    fabEl.textContent = isDay(current) ? "▲ 跳到今日重点" : "▲ 回到当天行程";
+  }
+  fabEl.addEventListener("click", function(){
+    var target = isDay(current) ? current : todayTab();
+    if(target !== current){ selectTab(target, false); }
+    var pan = document.getElementById("panel-" + target);
+    var key = pan ? pan.querySelector(".ev.key") : null;
+    if(key){
+      var y = key.getBoundingClientRect().top + window.pageYOffset - 150;
+      window.scrollTo({ top:y, behavior:"smooth" });
+      key.querySelector(".body").animate([{boxShadow:"0 0 0 0 rgba(179,52,31,.5)"},{boxShadow:"0 0 0 12px rgba(179,52,31,0)"}], {duration:900});
+    } else {
+      window.scrollTo({ top:0, behavior:"smooth" });
+    }
+  });
+
+  /* SECTION: init */
+  selectTab(defaultTab(), false);
+})();
+</script>
+</body>
+</html>
